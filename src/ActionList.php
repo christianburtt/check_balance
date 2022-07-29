@@ -184,6 +184,11 @@ Class ActionList{
         return $total; //this is the balance of all actions with bonus/boosts and Cash-outs that a user has done.
     }
 
+    /**
+     * This was basically just to see the action type and a nicely-printed date
+     * no test cases run on this, and it could be removed without any impact
+     * @return array 
+     */
     public function displayItems():array{
         $itemList = [];
         foreach($this->list as $item){
