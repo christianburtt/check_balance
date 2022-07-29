@@ -1,6 +1,9 @@
 <?php
 use PHPUnit\Framework\TestCase;
 require __DIR__."/../src/ActionList.php";
+require __DIR__."/../src/ActionFactory.php";
+require __DIR__."/../src/Boosters.php";
+
 final class ActionListTest extends TestCase{
     public function testCreateActionListNoArguments(){
         $this->assertInstanceOf(
@@ -66,6 +69,13 @@ final class ActionListTest extends TestCase{
         $args []= new  \ValueObject\Action("43de22","delivery",$theTime->getTimestamp());
         $testList = new \ValueObject\ActionList($args);
         $this->assertEquals($theTime->format('Y-m-d H:i:s.f'),$testList->getLastActionTime());
+    }
+
+    public function testCheckBalance(){
+        $myList =  \Factories\ActionFactory::createActionList("matt");
+        $this->assertEquals(19,
+            $myList->caclulateBalance()
+        );
     }
 
 }

@@ -11,6 +11,7 @@ namespace ValueObject;
 
 use DateInterval;
 use DateTime;
+use stdClass;
 
 Class ActionList{
     /**
@@ -159,6 +160,11 @@ Class ActionList{
 
         //FINALLY we do a loop just throug the valid boosts to check the list again to see if the valid boosts got cashed out or expired
         foreach($validBoosts as $boost){
+            //quick check to see if it's not been a month and they are still valid
+            if($this->list[count($this->list)-1]->getTimestamp() < $boost['expiry']){
+                $total +=$boost['points'];
+                continue;
+            }
             foreach($this->list as $action){
                 //we're only checking for cash-out actions 
                 if ($action->type =="cashout"){
@@ -168,12 +174,28 @@ Class ActionList{
                         $total +=$boost['points'];
                         break;
                     }
+                }else{
+
                 }
             }
         }
 
 
         return $total; //this is the balance of all actions with bonus/boosts and Cash-outs that a user has done.
+    }
+
+    public function displayItems():array{
+        $itemList = [];
+        foreach($this->list as $item){
+            $theTime = new DateTime();
+            $theTime->setTimestamp($item->getTimestamp());
+            $itemList []= [
+                'type'=>$item->type,
+                'time'=>$theTime->format('Y-m-d H:i:s')
+                
+            ];
+        }
+        return $itemList;
     }
 
 }

@@ -12,8 +12,16 @@ use Factories\ActionFactory;
 
 
  
- $myList = ActionFactory::createActionList("mark");
- 
+ $mattList = ActionFactory::createActionList("matt");
+ print_r($mattList->caclulateBalance());
+
+ $markList = ActionFactory::createActionList("mark");
+ print_r($markList->caclulateBalance());
+
+ $lukeList = ActionFactory::createActionList("luke");
+ print_r($lukeList->caclulateBalance());
+//  print_r($myList->displayItems());
+//   print_r($myList);
 //  $myActions []= new \ValueObject\Action("12", "delivery", time());
 //  $actionList = new \ValueObject\ActionList($myActions);
 

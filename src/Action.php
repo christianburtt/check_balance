@@ -11,7 +11,6 @@ namespace ValueObject;
 
 use InvalidArgumentException;
 
-use function PHPUnit\Framework\throwException;
 
 class Action{
     /**
@@ -30,14 +29,14 @@ class Action{
      *  - "cashout"
      * @var string
      */
-    private $action_type;
+    public $type;
     
     /**
      * timestamp of when the action was created/saved in the repository
      * ideally a 64-bit integer :D
      * @var int
      */
-    private $timestamp;
+    public $timestamp;
 
     /**
      * duration of the action
@@ -66,7 +65,7 @@ class Action{
     public function __construct($id, $type,$timestamp,$duration=0,$cash=0){
         if(!$id || !$type || !$timestamp) throw (new \InvalidArgumentException);
         $this->user_id = $id;
-        $this->action_type=$type;
+        $this->type=$type;
         $this->duration=$duration;
         $this->timestamp=$timestamp;
         $this->cashOutValue=$cash;
@@ -79,8 +78,8 @@ class Action{
      * @return int 
      */
     public function calculate_points() : int{
-        if($this->action_type == "rent") return $this->duration*2;
-        if($this->action_type == "cashout") return $this->cashOutValue*-1;
+        if($this->type == "rent") return $this->duration*2;
+        if($this->type == "cashout") return $this->cashOutValue*-1;
 
         return 1;
     }
