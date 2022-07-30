@@ -22,7 +22,7 @@ use Factories\ActionFactory;
 //  $markList = ActionFactory::createActionList("mark");
 //  print_r("mark: ".$markList->caclulateBalance()."\n");
 
- $lukeList = ActionFactory::createActionList("mark");
+ $lukeList = ActionFactory::createActionList("matt");
  print_r("rent: ".$lukeList->caclulateBalance("rent"));
 
  print_r("\ndelivery: ".$lukeList->caclulateBalance("delivery"));

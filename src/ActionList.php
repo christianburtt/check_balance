@@ -9,7 +9,6 @@ namespace ValueObject;
 
 use DateInterval;
 use DateTime;
-use stdClass;
 
 Class ActionList{
     /**
@@ -147,8 +146,8 @@ Class ActionList{
                     $total +=$action->calculate_points();
                     if($boostRule){
                         //check the time to make sure it's during the boosts active time
-                        $actionTime = new DateTime();
-                        $actionTime->setTimestamp($action->timestamp);
+                        $actionTime = new DateTime($action->getTimestamp());
+                        // $actionTime->setTimestamp($action->timestamp);
                         $timeString = $actionTime->format('H:i'); //this gives us something like "11:43" or "08:52" or "21:37"
                         //if the format 08:00 is outside the active times of the boost, then 
                         //do nothing
@@ -161,21 +160,23 @@ Class ActionList{
 
                         if($possibleBoostStart==0){ //we're just starting
                             $possibleBoostCount++;
-                            $possibleBoostStart = $action->timestamp;
+                            $possibleBoostStart = $action->getTimestamp();
                         }else{
                             //check the last timestamp
-                            $possibleTime = new DateTime();
-                            $possibleTime->setTimestamp($possibleBoostStart);
+                            $possibleTime = new DateTime($possibleBoostStart);
+                            // $possibleTime->setTimestamp($possibleBoostStart);
 
                             //get the interval between the first possible boost and now.
                             $interval = $possibleTime->diff($actionTime);
                             //if it's within the limit, we're good
-                            if($interval->h < $boostRule->duration){
+                            //that means no years, months, or whole days have passed AND the hour difference is within the 
+                            //boost rule duration
+                            if( $interval->y == 0 && $interval->m==0 && $interval->d==0 && $interval->h < $boostRule->duration){
                                 $possibleBoostCount++; //add an action to the counter
 
                                 //if we hit the required number within the time limit, add it to the array
                                 if($possibleBoostCount == $boostRule->requirement){
-                                    $this->possibleBoosts []= ['points'=>$possibleBoostCount,'start'=>$possibleBoostStart,'expiry'=>$possibleTime->add(new DateInterval("P30D"))->getTimestamp()];
+                                    $this->possibleBoosts []= ['points'=>$possibleBoostCount,'start'=>$possibleBoostStart,'expiry'=>$possibleTime->add(new DateInterval("P30D"))->format("Y-m-d H:i:s")];
                                 }
                             }else{
                                 //wer're past the duration now, so reset everything
@@ -188,6 +189,7 @@ Class ActionList{
                 }
                 //FINALLY we do a loop just throug the valid boosts to check the list again to see if the valid boosts got cashed out or expired
                 foreach($this->possibleBoosts as $boost){
+
                     //quick check to see if it's not been a month and they are still valid
                     if($this->masterList[$type][count($this->masterList[$type])-1]->getTimestamp() < $boost['expiry']){
                         $total +=$boost['points'];
@@ -197,7 +199,7 @@ Class ActionList{
                     
                         //if the cash out happened after the first action of the boost AND before it expired
                         //add it to the balance and break out of this inner foreach loop to go to the next boost
-                        if($withdrawal->timestamp > $boost['start'] && $withdrawal->timestamp<$boost['expiry']) {
+                        if($withdrawal->getTimestamp() > $boost['start'] && $withdrawal->getTimestamp()<$boost['expiry']) {
                             $total +=$boost['points'];
                             break;
                         }

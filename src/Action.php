@@ -33,8 +33,9 @@ class Action{
     
     /**
      * timestamp of when the action was created/saved in the repository
-     * ideally a 64-bit integer :D
-     * @var int
+     * string in format YYYY-MM-DD hh:mm:ss
+     * the php code for that is Y-m-d H:i:s
+     * @var string
      */
     public $timestamp;
 
@@ -83,7 +84,7 @@ class Action{
 
         return 1;
     }
-    public function getTimestamp() : int{
+    public function getTimestamp() : string{
         return $this->timestamp;
     }
     public function getPoints() : int{

@@ -3,13 +3,13 @@
     { 
         "id":"luke",
         "type":"rent",
-        "timestamp":"1657084004",
+        "timestamp":"2022-07-18 12:15:34",
         "duration":"4"
     },
     { 
         "id":"luke",
         "type":"rent",
-        "timestamp":"1657104004",
+        "timestamp":"2022-07-20 12:15:34",
         "duration":"5"
     }
 

@@ -2,13 +2,13 @@
     { 
         "id":"luke",
         "type":"cashout",
-        "timestamp":"1657114004",
+        "timestamp":"2022-07-16 12:15:34",
         "cash":"8"
     },
     { 
         "id":"luke",
         "type":"cashout",
-        "timestamp":"1657074004",
+        "timestamp":"2022-07-21 12:15:34",
         "cash":"10"
     }
    
