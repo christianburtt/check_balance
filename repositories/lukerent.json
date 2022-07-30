@@ -1,0 +1,16 @@
+[
+    
+    { 
+        "id":"luke",
+        "type":"rent",
+        "timestamp":"1657084004",
+        "duration":"4"
+    },
+    { 
+        "id":"luke",
+        "type":"rent",
+        "timestamp":"1657104004",
+        "duration":"5"
+    }
+
+]

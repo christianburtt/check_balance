@@ -1,11 +1,9 @@
 <?php
 /**
- * Class Action
- * Each action object represents something that a user has completed
- * Actions represent actions the user does in real life (delivery, rideshare, etc)
- *  AS WELL AS When a user cashes out points
- * It's basically an entry in a ledger.
- * namespaced to ValueObject
+ * Class ActionList
+ * An ActionList Object is an Aggregate object. It's root Entitiy SHOULD be a User Entity
+ * but in this test case, we don't have access to the User Entity, so it
+ * somewhat acts as its own root.
  */
 namespace ValueObject;
 
@@ -15,10 +13,23 @@ use stdClass;
 
 Class ActionList{
     /**
-     * an array of Action Objects
+     * an 2-D array of Action Objects, sorted by "type" of action
+     * so that each data respository has it's own list of actions, not including withdrawals
      * @var array
      */
-    public $list;
+    public $masterList;
+
+    /**
+     * a 1-D array of Withdrawal Actions
+     * @var array
+     */
+    private $withdrawals;
+
+    /**
+     * a 1-d array of possible Boosted/Bonus points
+     * @var array
+     */
+    private $possibleBoosts;
 
     /**
      * An object of rules for boosting points.
@@ -32,14 +43,18 @@ Class ActionList{
      * @return void 
      */
     public function __construct($actions=null){
-        $this->list = [];
+        $this->masterList = [];
         if($actions){
             foreach($actions as $action){
-                $this->list []=$action;
+                if($action->type == "cashout"){
+                    $this->withdrawals []=$action;
+                }else{
+                    $this->masterList[$action->type] []=$action;
+                }
             }
         }
         $this->boosterRules = new Boosters();
-        $this->sort();
+        $possibleBoosts = [];
     }
 
     /**
@@ -49,17 +64,25 @@ Class ActionList{
      */
     public function append($actions):void{
         foreach($actions as $action){
-            $this->list []=$action;
+            if($action->type == "cashout"){
+                $this->withdrawals []=$action;
+            }else{
+                $this->masterList[$action->type] []=$action;
+            }
         }
-        $this->sort();
     }
 
     /**
      * Sorts the list by timestamp.
      * @return bool 
      */
-    public function sort() :bool{
-        return usort($this->list, array($this,"timeCompare"));
+    public function sort($type) :bool{
+        if($type == "cashout"){
+            if(!$this->withdrawals) return false;
+            return usort($this->withdrawals, array($this,"timeCompare"));
+        }else{
+            return usort($this->masterList[$type], array($this,"timeCompare"));
+        }
     }
 
     /**
@@ -77,12 +100,12 @@ Class ActionList{
      * EXPECTS list to be sorted!
      * @return string 
      */
-    public function getLastActionTime():string{
+    // public function getLastActionTime():string{
 
-        $lastActionTime = new \DateTime();
-        $lastActionTime->setTimestamp($this->list[count($this->list)-1]->getTimestamp());
-        return $lastActionTime->format('Y-m-d H:i:s.f');
-    }
+    //     $lastActionTime = new \DateTime();
+    //     $lastActionTime->setTimestamp($this->list[count($this->list)-1]->getTimestamp());
+    //     return $lastActionTime->format('Y-m-d H:i:s.f');
+    // }
 
     /**
      * This is the workhorse of the algorithm.
@@ -95,93 +118,107 @@ Class ActionList{
      * 
      * The performance of this is not great, O((2+M)*N), where M is the number of booster rules and N is the
      * number of actions in the action list.
+     * @param string type = if set, it will only calculate the balance of the specific List
      * @return int 
      */
-    public function caclulateBalance():int{
+    public function caclulateBalance($type=""):int{
+        //When there IS a type
         $total = 0;
-        //FIRST loop through and add up everything
-        foreach($this->list as $action){
-            $total += $action->calculate_points();
-        }
-        //this total has all the debits and credits EXCEPT for BONUSES.
 
-        //NOW loop through each booster rule and check the list for start times and
-        //validate if it meets the rules
-        $validBoosts = [];
-        foreach($this->boosterRules->rules as $rule){
+        if($type!==""){
+            $this->sort($type);
+            $this->possibleBoosts = [];
+            $boostRule = null;
+            foreach($this->boosterRules->rules as $rule){
+                if($rule->type == $type){
+                    $boostRule=$rule;
+                    break;
+                }
+            }
             $possibleBoostCount = 0; //this will have to match the number of actions in a timeframe
             $possibleBoostStart = 0; //this will start the clock on the timeframe
-            foreach($this->list as $action){
-                //we're segmenting the list for only the same types of actions
-                if($action->type!=$rule->type) continue;
 
-
-                //check the time to make sure it's during the boosts active time
-                $theTime = new DateTime();
-                $theTime->setTimestamp($action->timestamp);
-                $timeString = $theTime->format('H:i'); //this gives us something like "11:43" or "08:52" or "21:37"
-                //if the format 08:00 is outside the active times of the boost, then 
-                //do nothing
-                if($timeString<$rule->activeStart || $timeString > $rule->activeEnd ){ 
-                    $possibleBoostCount=0;
-                    $possibleBoostStart=0;
-                    continue;
+            if($type=="cashout"){
+                foreach($this->withdrawals as $withdrawal){
+                    $total +=$withdrawal->calculate_points();
                 }
-                //otherwise we have a valid boost possibility 
-
-                if($possibleBoostStart==0){ //we're just starting
-                    $possibleBoostCount++;
-                    $possibleBoostStart = $action->timestamp;
-                }else{
-                    //check the last timestamp
-                    $possibleTime = new DateTime();
-                    $possibleTime->setTimestamp($possibleBoostStart);
-
-                    //get the interval between the first possible boost and now.
-                    $interval = $possibleTime->diff($theTime);
-                    //if it's within the limit, we're good
-                    if($interval->h < $rule->duration){
-                        $possibleBoostCount++; //add an action to the counter
-
-                        //if we hit the required number within the time limit, add it to the array
-                        if($possibleBoostCount == $rule->requirement){
-                            $validBoosts []= ['points'=>$possibleBoostCount,'start'=>$possibleBoostStart,'expiry'=>$possibleTime->add(new DateInterval("P30D"))->getTimestamp()];
+            }else{
+                foreach($this->masterList[$type] as $action){
+                    $total +=$action->calculate_points();
+                    if($boostRule){
+                        //check the time to make sure it's during the boosts active time
+                        $actionTime = new DateTime();
+                        $actionTime->setTimestamp($action->timestamp);
+                        $timeString = $actionTime->format('H:i'); //this gives us something like "11:43" or "08:52" or "21:37"
+                        //if the format 08:00 is outside the active times of the boost, then 
+                        //do nothing
+                        if($timeString<$boostRule->activeStart || $timeString > $boostRule->activeEnd ){ 
+                            $possibleBoostCount=0;
+                            $possibleBoostStart=0;
+                            continue;
                         }
-                    }else{
-                        //wer're past the duration now, so reset everything
-                        $possibleBoostCount=0;
-                        $possibleBoostStart=0;
+                        //otherwise we have a valid boost possibility 
 
+                        if($possibleBoostStart==0){ //we're just starting
+                            $possibleBoostCount++;
+                            $possibleBoostStart = $action->timestamp;
+                        }else{
+                            //check the last timestamp
+                            $possibleTime = new DateTime();
+                            $possibleTime->setTimestamp($possibleBoostStart);
+
+                            //get the interval between the first possible boost and now.
+                            $interval = $possibleTime->diff($actionTime);
+                            //if it's within the limit, we're good
+                            if($interval->h < $boostRule->duration){
+                                $possibleBoostCount++; //add an action to the counter
+
+                                //if we hit the required number within the time limit, add it to the array
+                                if($possibleBoostCount == $boostRule->requirement){
+                                    $this->possibleBoosts []= ['points'=>$possibleBoostCount,'start'=>$possibleBoostStart,'expiry'=>$possibleTime->add(new DateInterval("P30D"))->getTimestamp()];
+                                }
+                            }else{
+                                //wer're past the duration now, so reset everything
+                                $possibleBoostCount=0;
+                                $possibleBoostStart=0;
+
+                            }
+                        }
                     }
                 }
-        
-            }
-        }
-
-        //FINALLY we do a loop just throug the valid boosts to check the list again to see if the valid boosts got cashed out or expired
-        foreach($validBoosts as $boost){
-            //quick check to see if it's not been a month and they are still valid
-            if($this->list[count($this->list)-1]->getTimestamp() < $boost['expiry']){
-                $total +=$boost['points'];
-                continue;
-            }
-            foreach($this->list as $action){
-                //we're only checking for cash-out actions 
-                if ($action->type =="cashout"){
-                    //if the cash out happened after the first action of the boost AND before it expired
-                    //add it to the balance and break out of this inner foreach loop to go to the next boost
-                    if($action->timestamp > $boost['start'] && $action->timestamp<$boost['expiry']) {
+                //FINALLY we do a loop just throug the valid boosts to check the list again to see if the valid boosts got cashed out or expired
+                foreach($this->possibleBoosts as $boost){
+                    //quick check to see if it's not been a month and they are still valid
+                    if($this->masterList[$type][count($this->masterList[$type])-1]->getTimestamp() < $boost['expiry']){
                         $total +=$boost['points'];
-                        break;
+                        continue;
                     }
-                }else{
-
+                    foreach($this->withdrawals as $withdrawal){
+                    
+                        //if the cash out happened after the first action of the boost AND before it expired
+                        //add it to the balance and break out of this inner foreach loop to go to the next boost
+                        if($withdrawal->timestamp > $boost['start'] && $withdrawal->timestamp<$boost['expiry']) {
+                            $total +=$boost['points'];
+                            break;
+                        }
+                        
+                    }
                 }
             }
+            return $total;
+        }else{
+            //sort withdrawals first
+            $this->sort('cashout');
+            //recursively call this function on each type
+            foreach($this->masterList as $type=>$list){
+                $total += $this->caclulateBalance($type);
+            }
+            foreach($this->withdrawals as $withdrawal){
+                $total += $withdrawal->calculate_points(); //this will be a negative number
+            }
+            return $total; //this is the balance of all actions with bonus/boosts and Cash-outs that a user has done.
         }
-
-
-        return $total; //this is the balance of all actions with bonus/boosts and Cash-outs that a user has done.
+        
     }
 
     /**

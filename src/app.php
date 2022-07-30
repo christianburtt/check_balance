@@ -16,12 +16,20 @@ use Factories\ActionFactory;
  /**
   * 3 different tests from different repositories/files
   */
- $mattList = ActionFactory::createActionList("matt");
- print("matt: ".$mattList->caclulateBalance()."\n");
+//  $mattList = ActionFactory::createActionList("matt");
+//  print("matt: ".$mattList->caclulateBalance()."\n");
 
- $markList = ActionFactory::createActionList("mark");
- print_r("mark: ".$markList->caclulateBalance()."\n");
+//  $markList = ActionFactory::createActionList("mark");
+//  print_r("mark: ".$markList->caclulateBalance()."\n");
 
- $lukeList = ActionFactory::createActionList("luke");
- print_r("luke: ".$lukeList->caclulateBalance());
+ $lukeList = ActionFactory::createActionList("mark");
+ print_r("rent: ".$lukeList->caclulateBalance("rent"));
+
+ print_r("\ndelivery: ".$lukeList->caclulateBalance("delivery"));
+ print_r("\nrideshare: ".$lukeList->caclulateBalance("rideshare"));
+ print_r("\nwithdrawals: ".$lukeList->caclulateBalance("cashout"));
+ print_r("\nTotal: ".$lukeList->caclulateBalance());
+// print_r($lukeList->caclulateBalance());
+// $testList = ActionFactory::createActionList("luke","delivery");
+// print_r($testList->caclulateBalance());
 

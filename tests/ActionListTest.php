@@ -56,20 +56,20 @@ final class ActionListTest extends TestCase{
         $latest = $theTime->getTimestamp();
         $args = [];
         $args []= new  \ValueObject\Action("43de22","delivery",$later);
-        $args []= new \ValueObject\Action("43de22","rideshare",$early);
-        $args []= new \ValueObject\Action("43de22","rent",$latest,2);
+        $args []= new \ValueObject\Action("43de22","delivery",$early);
+        $args []= new \ValueObject\Action("43de22","delivery",$latest,2);
 
         $testList = new \ValueObject\ActionList($args);
-        $testList->sort();
+        $testList->sort('delivery');
         $this->assertEquals($early,$testList->list[0]->getTimestamp());
     }
-    public function testLastTimeStamp(){
-        $theTime = new DateTime();
-        $args = [];
-        $args []= new  \ValueObject\Action("43de22","delivery",$theTime->getTimestamp());
-        $testList = new \ValueObject\ActionList($args);
-        $this->assertEquals($theTime->format('Y-m-d H:i:s.f'),$testList->getLastActionTime());
-    }
+    // public function testLastTimeStamp(){
+    //     $theTime = new DateTime();
+    //     $args = [];
+    //     $args []= new  \ValueObject\Action("43de22","delivery",$theTime->getTimestamp());
+    //     $testList = new \ValueObject\ActionList($args);
+    //     $this->assertEquals($theTime->format('Y-m-d H:i:s.f'),$testList->getLastActionTime());
+    // }
 
     public function testCheckBalance(){
         $myList =  \Factories\ActionFactory::createActionList("matt");

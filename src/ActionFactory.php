@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Action Factory
  * Theoretically, this factory would create an action list from pulling
@@ -11,11 +12,12 @@
  * AND Cash-Outs are in the lists.  So in the case of matt and luke, they've taken
  * some money out already.
  */
+
 namespace Factories;
 
 use ValueObject\ActionList;
 
-class ActionFactory{
+class ActionFactory {
 
     //static because it returns an ActionList not itself
     /**
@@ -24,25 +26,30 @@ class ActionFactory{
      * @param mixed $user 
      * @return ActionList 
      */
-    static public function createActionList($user){
+    static public function createActionList($user) {
         //Again, this would be an API or DB call- probably multiple.  
         //one for delliveries, one for rideshares, one for withdrawals of cash
         //in this case, it's already been aggregated by the "API" aka the file.
-        $repo = file_get_contents(__DIR__."/../repositories/".$user.".json");
-        $json_array = json_decode($repo);
 
-        //want to explicitly cast each stdClass as an Action object.
-        //if we were pulling directly from a DB we could do this directly
-        //which would be much more efficient.
-        $allActions = [];
-        foreach($json_array as $item){
-            //default optional values
-            if(!isset($item->duration))$item->duration = 0;
-            if(!isset($item->cash))$item->cash=0;
-            //add to the main array
-            $allActions []= new \ValueObject\Action($item->id,$item->type,$item->timestamp,$item->duration,$item->cash);
+        //get all the files and find only the ones we want
+        $allFiles = scandir(__DIR__ . "/../repositories/");
+        $actionList = new \ValueObject\ActionList();
+        foreach ($allFiles as $file) {
+            //if the file is not for our user, skip
+            if(stripos($file,$user) !== false){
+                
+                $json_array = json_decode(file_get_contents(__DIR__ . "/../repositories/" . $file));
+                $allActions = [];
+                foreach ($json_array as $item) {
+                    //default optional values
+                    if (!isset($item->duration)) $item->duration = 0;
+                    if (!isset($item->cash)) $item->cash = 0;
+                    //add to the main array
+                    $allActions[] = new \ValueObject\Action($item->id, $item->type, $item->timestamp, $item->duration, $item->cash);
+                }
+                $actionList->append($allActions);
+            }
         }
-        //sent the array of objects to the Action List Constructor
-        return new \ValueObject\ActionList($allActions);
+        return $actionList;
     }
 }

@@ -1,0 +1,27 @@
+[
+    { 
+        "id":"luke",
+        "type":"rideshare",
+        "timestamp":"1657068004"
+    },
+    { 
+        "id":"luke",
+        "type":"rideshare",
+        "timestamp":"1657073004"
+    },
+    { 
+        "id":"luke",
+        "type":"rideshare",
+        "timestamp":"1657074004"
+    },
+    { 
+        "id":"luke",
+        "type":"rideshare",
+        "timestamp":"1657075004"
+    }, 
+    { 
+        "id":"luke",
+        "type":"rideshare",
+        "timestamp":"1657076004"
+    }
+]

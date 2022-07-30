@@ -1,0 +1,15 @@
+[
+    { 
+        "id":"luke",
+        "type":"cashout",
+        "timestamp":"1657114004",
+        "cash":"8"
+    },
+    { 
+        "id":"luke",
+        "type":"cashout",
+        "timestamp":"1657074004",
+        "cash":"10"
+    }
+   
+]
