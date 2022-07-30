@@ -3,3 +3,4 @@
 .phpunit.cache/code-coverage/065b1ef8c81258501128820fc745df66304ca10ca4d0d07f721a728d6d412756
 .phpunit.cache/code-coverage/81d39c758b523ee44634b12b8806c9343b9c45c1a80a0668e1a28a27679a51d4
 .phpunit.cache/code-coverage/ec38d62ac50b02840b1770fdc0ff0d35ba4b28ad17720e05b5327086822c40ed
+vendor/
