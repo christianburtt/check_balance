@@ -25,7 +25,7 @@ use Factories\ActionFactory;
    *    total: 14
    */
  $mattList = ActionFactory::createActionList("matt");
- print("matt: ".$mattList->caclulateBalance()."\n");
+ print("matt: ".$mattList->calculateBalance()."\n");
 
  /**
   * Mark data (from initial problem statement):
@@ -36,7 +36,7 @@ use Factories\ActionFactory;
   *     total: 21 (after 1 month it will be 16)
   */
  $markList = ActionFactory::createActionList("mark");
- print_r("mark: ".$markList->caclulateBalance()."\n");
+ print_r("mark: ".$markList->calculateBalance()."\n");
 
 
  /**
@@ -48,7 +48,7 @@ use Factories\ActionFactory;
   *     total: 15.  this will stay after one month because the boosted points were withdrawan FIRST
   */
  $lukeList = ActionFactory::createActionList("luke");
- print_r("luke: ".$lukeList->caclulateBalance());
+ print_r("luke: ".$lukeList->calculateBalance());
 
  /**
   * IF you want to see the amounts broken down by category/data stream

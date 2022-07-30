@@ -16,14 +16,14 @@ ASSUMPTIONS:
 2) Boosters could be edited, turned on/off, and added in the future.
 3) Users are able to withdraw, and that being the case, BOOSTED (aka Bonus) points are withdrawan FIRST. Obviously this could be different.
 
-Code is built in vanilla PHP
-Unit tests done with PHPUnit
+Code is built in vanilla PHP 7.4.21
+Unit tests done with PHPUnit added via Composer
 "repositories" in this case are just the .json text files
 
 The Performance of the main algorithm is O(m*n) where M is the number of booster rules and N is the number of datapoints / actions that apply to that booster rule
 
 
-##Original Problem Statement:
+## Original Problem Statement:
 
 You are developing the “Incentives Program.” Users can earn bonus points by performing specific actions. At the moment, there are three types of actions. Each of them results in a different amount of points which user receives:
 - delivery: 1 point for every action

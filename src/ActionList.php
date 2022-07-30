@@ -110,7 +110,7 @@ class ActionList {
      * @param string type = if set, it will only calculate the balance of the specific List
      * @return int 
      */
-    public function caclulateBalance($type = ""): int {
+    public function calculateBalance($type = ""): int {
         $total = 0;
 
         //When there IS a type
@@ -149,7 +149,7 @@ class ActionList {
             //recursively call this function on each type
             //Note that withdrawals/cashouts are a different list
             foreach ($this->masterList as $type => $list) {
-                $total += $this->caclulateBalance($type);
+                $total += $this->calculateBalance($type);
             }
             //add up the withdrawals as well
             foreach ($this->withdrawals as $withdrawal) {
