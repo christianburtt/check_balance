@@ -15,14 +15,14 @@
 
 namespace Factories;
 
-use ValueObject\ActionList;
+use Aggregates\ActionList;
 
 class ActionFactory {
 
-    //static because it returns an ActionList not itself
     /**
      * the User ID could be string or DB identifier.  IN this case its the user name
      * which is the title of the text file.
+     * static because it returns an ActionList not itself
      * @param mixed $user 
      * @return ActionList 
      */
@@ -33,11 +33,11 @@ class ActionFactory {
 
         //get all the files and find only the ones we want
         $allFiles = scandir(__DIR__ . "/../repositories/");
-        $actionList = new \ValueObject\ActionList();
+        $actionList = new \Aggregates\ActionList();
         foreach ($allFiles as $file) {
             //if the file is not for our user, skip
             if(stripos($file,$user) !== false){
-                
+
                 $json_array = json_decode(file_get_contents(__DIR__ . "/../repositories/" . $file));
                 $allActions = [];
                 foreach ($json_array as $item) {
